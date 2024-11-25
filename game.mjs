@@ -10,19 +10,21 @@ const rl = readlinePromises.createInterface({
 import { HANGMAN_UI } from "./graphics.mjs";
 import { GREEN, RED, WHITE, RESET } from "./colors.mjs";
 import dictionary from "./dictionary.mjs";
+import { splashScreen } from "./Splashscreen.mjs";
 
 const word = getRandomWord();
 let guessedWord = createGuessList(word.length);
 let wrongGuesses = [];
+let guessesLetters = [];
 let isGameOver = false;
 let gameLanguage = dictionary.no;
 //getLanguageOptions(dictionary);
 //Her vil vi vise splashscreen
-print(gameLanguage.gameIntro, RED);
-await rl.question("Trykk på en knapp for å starte");
+print(splashScreen);
+await rl.question(gameLanguage.startPrompt);
 console.clear();
 let chooseGameLanguage = (
-  await rl.question(gameLanguage.languageChoice)
+  await rl.question(gameLanguage.languageChoice + "\n")
 ).toLowerCase();
 
 if (chooseGameLanguage == "no") {
@@ -33,7 +35,7 @@ if (chooseGameLanguage == "no") {
 }
 
 let startGame = (
-  await rl.question(gameLanguage.startingQuestion)
+  await rl.question(gameLanguage.startingQuestion + "\n")
 ).toLowerCase();
 
 if (startGame == "n") {
@@ -47,23 +49,26 @@ do {
   print(gameLanguage.guessPrompt);
   let guess = (await rl.question("")).toLowerCase();
 
-  if (isWordGuessed(word, guess)) {
+  if (isWordGuessed(word, guess) && guessesLetters.includes(word) == false) {
     print(gameLanguage.winCelibration, GREEN);
     isGameOver = true;
   } else if (word.includes(guess)) {
     uppdateGuessedWord(guess);
+    //legge til
+    guessesLetters.push(guess);
 
     if (isWordGuessed(word, guessedWord)) {
-      print("Hurra du gjettet ordet", GREEN);
+      print(gameLanguage.winCelibration, GREEN);
       isGameOver = true;
     }
   } else {
-    print(" DU TAR FEIL !!!!!!!", RED);
+    print(gameLanguage.wrongGuesses, RED);
     wrongGuesses.push(guess);
+    guessesLetters.push(guess);
 
     if (wrongGuesses.length >= HANGMAN_UI.length - 1) {
       isGameOver = true;
-      print("Du har daua", RED);
+      print(gameLanguage.deathScene, RED);
     }
   }
 
@@ -117,9 +122,4 @@ function getRandomWord() {
   const words = ["Kiwi", "Car", "Dog", "etwas"];
   let index = Math.floor(Math.random() * words.length);
   return words[index].toLowerCase();
-}
-
-//function checkInput(letters) {
-if (wrongGuesses.includes(letters)) {
-  return " ";
 }
