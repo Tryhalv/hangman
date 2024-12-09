@@ -67,6 +67,7 @@ do {
     guessesLetters.push(guess);
 
     if (wrongGuesses.length >= HANGMAN_UI.length - 1) {
+      updateUI();
       isGameOver = true;
       print(gameLanguage.deathScene, RED);
     }
